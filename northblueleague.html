@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>North Blue League - One Piece Card Game</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: "Grand Line" - A vibrant palette inspired by One Piece: deep blue, sunny yellow, treasure gold, and a touch of red. -->
+    <!-- Application Structure Plan: A single-page, top-to-bottom narrative flow is chosen for simplicity and to guide the user logically from initial interest to final registration. The structure begins with a high-impact hero section for key details, followed by a visual explanation of the tournament format, an interactive bounty (prize pool) calculator to drive engagement, a clear timeline, and finally, a call to action. This is more intuitive than clicking through slides and allows all information to be accessible on one page. -->
+    <!-- Visualization & Content Choices:
+        - Report Info: Tournament Name/Overview -> Goal: Attract/Inform -> Viz: Hero section with key stats -> Interaction: "Register" button scrolls to form -> Justification: Immediately conveys the event's value.
+        - Report Info: Tournament Structure (Swiss + Elimination) -> Goal: Explain the format -> Viz: HTML/CSS flow diagram -> Interaction: None, purely visual -> Justification: A visual flow is easier to understand than text alone.
+        - Report Info: Prize Pool (Bounty) -> Goal: Engage and incentivize -> Viz: Donut chart (Chart.js) + dynamic text -> Interaction: Slider to adjust player count, updating the chart and total bounty value in real-time -> Justification: Interactivity makes the bounty potential tangible and fun to explore.
+        - Report Info: Key Dates -> Goal: Inform about schedule -> Viz: Vertical timeline with HTML/CSS -> Interaction: None -> Justification: A timeline clearly presents chronological information.
+        - Report Info: Registration Details -> Goal: Convert interest to sign-ups -> Viz: Simple contact info block with WhatsApp link -> Interaction: WhatsApp link -> Justification: Provides clear, final actions for the user. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            height: auto;
+            min-height: 300px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                min-height: 350px;
+            }
+        }
+        .flow-arrow::after {
+            content: '→';
+            font-size: 2rem;
+            line-height: 1;
+            color: #FACC15; /* Gold arrow */
+        }
+        .details-arrow::before {
+            content: '▶';
+            margin-right: 0.5rem;
+            transition: transform 0.2s;
+            display: inline-block;
+        }
+        details[open] > summary .details-arrow::before {
+            transform: rotate(90deg);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <header class="bg-blue-900 shadow-lg sticky top-0 z-50">
+        <nav class="container mx-auto px-6 py-3 flex justify-between items-center">
+            <div class="text-2xl font-bold text-white">
+                <span class="text-yellow-400">North Blue</span> League 🏴‍☠️
+            </div>
+            <div class="hidden md:flex space-x-6">
+                <a href="#format" class="text-gray-200 hover:text-yellow-400 transition">Format</a>
+                <a href="#bounty" class="text-gray-200 hover:text-yellow-400 transition">Bounty</a>
+                <a href="#schedule" class="text-gray-200 hover:text-yellow-400 transition">Schedule</a>
+                <a href="#join" class="text-gray-200 hover:text-yellow-400 transition">Join Crew</a>
+            </div>
+            <div class="md:hidden">
+                <button id="menu-btn" class="text-white focus:outline-none">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                </button>
+            </div>
+        </nav>
+        <div id="mobile-menu" class="hidden md:hidden px-6 pb-4 bg-blue-800">
+             <a href="#format" class="block py-2 text-gray-200 hover:text-yellow-400 transition">Format</a>
+             <a href="#bounty" class="block py-2 text-gray-200 hover:text-yellow-400 transition">Bounty</a>
+             <a href="#schedule" class="block py-2 text-gray-200 hover:text-yellow-400 transition">Schedule</a>
+             <a href="#join" class="block py-2 text-gray-200 hover:text-yellow-400 transition">Join Crew</a>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-6">
+
+        <section id="hero" class="text-center py-20 md:py-32">
+            <h1 class="text-4xl md:text-6xl font-extrabold text-gray-900 leading-tight">
+                Embark on the North Blue League!
+            </h1>
+            <p class="mt-4 text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
+                Join our two-month journey to find the ultimate One Piece Card Game champion. Compete, grow your bounty, and become Pirate King!
+            </p>
+            <div class="mt-8 flex justify-center gap-4 flex-wrap">
+                <div class="bg-blue-100 text-blue-800 font-bold py-2 px-4 rounded-full">8 Logbook Rounds</div>
+                <div class="bg-yellow-100 text-yellow-800 font-bold py-2 px-4 rounded-full">Top 8 Grand Scramble</div>
+                <div class="bg-red-100 text-red-800 font-bold py-2 px-4 rounded-full">10,000 Beri Entry</div>
+            </div>
+            <a href="#join" class="mt-10 inline-block bg-red-600 text-white font-bold py-3 px-8 rounded-lg text-lg hover:bg-red-700 transition-transform transform hover:scale-105">
+                Join the Crew!
+            </a>
+        </section>
+
+        <section id="format" class="py-16">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900">Tournament Voyage Plan</h2>
+                <p class="mt-2 text-gray-600 max-w-2xl mx-auto">Our journey to find the Pirate King is split into two epic phases.</p>
+            </div>
+            <div class="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-4 text-center">
+                <div class="bg-white p-8 rounded-xl shadow-lg border w-full md:w-1/3">
+                    <div class="text-5xl mb-4">📜</div>
+                    <h3 class="text-2xl font-bold mb-2">Phase 1: Logbook Rounds</h3>
+                    <p class="text-gray-600">Over two months, battle through 8 Swiss-style rounds. Each victory fills your logbook with points, climbing you closer to the finals. Fair fights for all aspiring pirates!</p>
+                </div>
+                <div class="flow-arrow text-yellow-500 transform md:rotate-0 rotate-90"></div>
+                <div class="bg-white p-8 rounded-xl shadow-lg border w-full md:w-1/3">
+                     <div class="text-5xl mb-4">👑</div>
+                    <h3 class="text-2xl font-bold mb-2">Phase 2: The Grand Scramble</h3>
+                    <p class="text-gray-600">The top 8 pirates from the Logbook Rounds clash in a single-elimination bracket. Win or walk the plank! Only one can claim the title of Pirate King!</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="bounty" class="py-16 bg-gray-100 -mx-6 px-6">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900">Interactive Bounty Pool</h2>
+                <p class="mt-2 text-gray-600 max-w-2xl mx-auto">Every Beri from entry fees swells the grand bounty! See how the treasure grows and is shared among the top 8 crew members. Slide to estimate the number of challengers.</p>
+            </div>
+            <div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                <div class="bg-white p-6 rounded-xl shadow-lg border">
+                    <label for="player-slider" class="block text-lg font-medium text-gray-700">Estimated Number of Challengers: <span id="player-count" class="font-bold text-blue-700">32</span></label>
+                    <input id="player-slider" type="range" min="8" max="100" value="32" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer mt-2 accent-yellow-500">
+                    <div class="mt-6 text-center">
+                        <p class="text-lg text-gray-600">Estimated Total Bounty:</p>
+                        <p id="bounty-pool" class="text-5xl font-extrabold text-blue-800">£320</p>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="bountyChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section id="schedule" class="py-16">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900">Logbook Dates & Voyage Schedule</h2>
+                <p class="mt-2 text-gray-600">Mark your maps for key moments on our journey.</p>
+            </div>
+            <div class="relative max-w-2xl mx-auto">
+                <div class="absolute left-1/2 h-full w-0.5 bg-blue-200" style="transform: translateX(-50%);"></div>
+                <div class="relative mb-8">
+                    <div class="flex items-center">
+                        <div class="w-1/2 pr-8 text-right">
+                            <h3 class="font-bold text-lg text-blue-800">Crew Sign-up Deadline</h3>
+                            <p class="text-gray-600">TBC</p>
+                        </div>
+                        <div class="absolute left-1/2 w-4 h-4 bg-blue-700 rounded-full border-4 border-white" style="transform: translateX(-50%);"></div>
+                        <div class="w-1/2 pl-8"></div>
+                    </div>
+                </div>
+                <div class="relative mb-8">
+                    <div class="flex items-center">
+                        <div class="w-1/2 pr-8"></div>
+                        <div class="absolute left-1/2 w-4 h-4 bg-blue-700 rounded-full border-4 border-white" style="transform: translateX(-50%);"></div>
+                        <div class="w-1/2 pl-8">
+                             <h3 class="font-bold text-lg text-blue-800">Tournament Embarkation</h3>
+                             <p class="text-gray-600">Two months of card battles begin!</p>
+                             <p class="text-gray-600 font-bold">TBC</p>
+                        </div>
+                    </div>
+                </div>
+                 <div class="relative">
+                    <div class="flex items-center">
+                        <div class="w-1/2 pr-8 text-right">
+                            <h3 class="font-bold text-lg text-blue-800">Grand Scramble Finals</h3>
+                            <p class="text-gray-600">The top 8 clash for the Pirate King title!</p>
+                            <p class="text-gray-600 font-bold">TBC</p>
+                        </div>
+                        <div class="absolute left-1/2 w-4 h-4 bg-blue-700 rounded-full border-4 border-white" style="transform: translateX(-50%);"></div>
+                        <div class="w-1/2 pl-8"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section id="rules" class="py-16 bg-gray-100 -mx-6 px-6">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900">Pirate Code & FAQ</h2>
+                <p class="mt-2 text-gray-600 max-w-2xl mx-auto">Essential rules for all aspiring pirates of the card seas.</p>
+            </div>
+             <div class="max-w-3xl mx-auto space-y-4">
+                <details class="bg-white p-4 rounded-lg shadow-sm cursor-pointer">
+                    <summary class="font-medium text-lg flex justify-between items-center">Who can join the crew? <span class="details-arrow"></span></summary>
+                    <p class="mt-2 text-gray-600">The tournament is open to all One Piece Card Game enthusiasts! Specific details on skill level targeting will be confirmed, but we aim for a fun, competitive environment for all nakama.</p>
+                </details>
+                <details class="bg-white p-4 rounded-lg shadow-sm cursor-pointer">
+                    <summary class="font-medium text-lg flex justify-between items-center">What's the match format? <span class="details-arrow"></span></summary>
+                    <p class="mt-2 text-gray-600">Matches will be Best of 3 (Bo3), with no time limit. Standard One Piece Card Game rules apply (Bandai official ruleset).</p>
+                </details>
+                <details class="bg-white p-4 rounded-lg shadow-sm cursor-pointer">
+                    <summary class="font-medium text-lg flex justify-between items-center">How do we schedule battles? <span class="details-arrow"></span></summary>
+                    <p class="mt-2 text-gray-600">Scheduling for the Logbook rounds is flexible. Crew members will be responsible for coordinating with their opponents to play their match within the designated timeframe for each round (e.g., within a specific week).</p>
+                </details>
+            </div>
+        </section>
+
+        <section id="join" class="text-center py-20">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900">Ready to Set Sail?</h2>
+            <p class="mt-4 text-lg text-gray-600 max-w-xl mx-auto">Sign up today to begin your voyage in the North Blue League!</p>
+            <div class="mt-8 bg-white p-8 rounded-lg shadow-lg inline-block border">
+                <p class="mt-6 text-lg font-medium">
+                    Join our official <span class="font-bold text-green-600">WhatsApp Group</span> for updates and coordination:
+                    <a href="https://chat.whatsapp.com/LM1osaK87WjCWynxR0vz0Q" target="_blank" class="block mt-2 bg-green-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-600 transition-transform transform hover:scale-105">
+                        Join WhatsApp Group
+                    </a>
+                </p>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-blue-900 text-white mt-16">
+        <div class="container mx-auto px-6 py-4 text-center">
+            <p>&copy; 2025 North Blue League. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const slider = document.getElementById('player-slider');
+            const playerCountEl = document.getElementById('player-count');
+            const bountyPoolEl = document.getElementById('bounty-pool');
+            const menuBtn = document.getElementById('menu-btn');
+            const mobileMenu = document.getElementById('mobile-menu');
+
+            menuBtn.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+
+            const bountyDistribution = [0.40, 0.20, 0.12, 0.08, 0.05, 0.05, 0.05, 0.05];
+            const bountyLabels = ['Pirate King', 'First Mate', 'Navigator', 'Cook', 'Sniper', 'Doctor', 'Shipwright', 'Musician'];
+            const backgroundColors = ['#1E3A8A', '#2563EB', '#3B82F6', '#60A5FA', '#93C5FD', '#BFDBFE', '#DBEAFE', '#EFF6FF'];
+            
+            const ctx = document.getElementById('bountyChart').getContext('2d');
+            const bountyChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: bountyLabels,
+                    datasets: [{
+                        label: 'Bounty Distribution',
+                        data: bountyDistribution.map(p => p * 100),
+                        backgroundColor: backgroundColors,
+                        borderColor: '#fff',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                             labels: {
+                                font: {
+                                    size: 14,
+                                    family: 'Inter'
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    const total = parseFloat(bountyPoolEl.textContent.replace('£', ''));
+                                    const value = context.parsed;
+                                    const bountyMoney = (total * (value / 100)).toFixed(2);
+                                    label += `${value}% (£${bountyMoney})`;
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    cutout: '50%'
+                }
+            });
+
+            function updateBounties() {
+                const playerCount = slider.value;
+                playerCountEl.textContent = playerCount;
+
+                const totalBounty = playerCount * 10;
+                bountyPoolEl.textContent = `£${totalBounty}`;
+
+                bountyChart.update();
+            }
+
+            slider.addEventListener('input', updateBounties);
+
+            updateBounties();
+        });
+    </script>
+
+</body>
+</html>
